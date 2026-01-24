@@ -212,7 +212,7 @@ ten_khach_hang = fields.Char(
 )
 ```
 
-> [!TIP]
+> [!NOTE]
 > **Related fields** với `store=True` tạo bản copy dữ liệu trong database, cho phép tìm kiếm và sắp xếp nhanh hơn. Dữ liệu được tự động đồng bộ khi record gốc thay đổi.
 
 ---
@@ -581,7 +581,7 @@ View form có logic điều kiện hiển thị:
        }"/>
 ```
 
-> [!TIP]
+> [!NOTE]
 > Field `khach_hang_id` chỉ hiển thị và bắt buộc khi `phan_loai` = `'khach_hang'`. Đây là cách Odoo xử lý UI động dựa trên giá trị field.
 
 #### 3.7.3. Search View với Filters
