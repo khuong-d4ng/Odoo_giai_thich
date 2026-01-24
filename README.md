@@ -765,5 +765,5 @@ erDiagram
 ---
 
 > [!NOTE]
-> **Tài liệu này được tạo tự động từ phân tích mã nguồn.**  
-> Đường dẫn mã nguồn: `\\wsl.localhost\Ubuntu-22.04\home\khuong\odoo-btl\TTDN-16-02-N8\addons\`
+> **Lần cuối ta bên nhau.**  
+> Cay đắng nhưng không đau
