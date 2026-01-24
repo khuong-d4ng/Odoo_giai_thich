@@ -183,9 +183,6 @@ ten_khach_hang = fields.Char(
 )
 ```
 
-> [!TIP]
-> **Related fields** với `store=True` tạo bản copy dữ liệu trong database, cho phép tìm kiếm và sắp xếp nhanh hơn. Dữ liệu được tự động đồng bộ khi record gốc thay đổi.
-
 ---
 
 ### 2.4. Giao Diện Người Dùng
