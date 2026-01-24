@@ -221,6 +221,8 @@ ten_khach_hang = fields.Char(
 
 #### 2.4.1. Dashboard Khách Hàng
 
+<img src="images/dashboard-khach-hang.png" alt="dashboard-don-hang" width="200"/>
+
 Dashboard cung cấp các view phân tích:
 
 | View | Mô Tả |
@@ -231,6 +233,8 @@ Dashboard cung cấp các view phân tích:
 **Menu truy cập:** Quản lý khách hàng → Dashboard khách hàng
 
 #### 2.4.2. Dashboard Đơn Hàng
+
+<img src="images/dashboard-don-hang.png" alt="dashboard-don-hang" width="200"/>
 
 Dashboard sử dụng Kanban board với các tính năng:
 
@@ -544,6 +548,8 @@ Module `van_ban` định nghĩa 5 model danh mục hỗ trợ trong file [danh_m
 ### 3.7. Giao Diện Người Dùng
 
 #### 3.7.1. Dashboard Văn Bản Đến
+
+<img src="images/dashboard-van-ban.png" alt="dashboard-don-hang" width="200"/>
 
 Dashboard sử dụng Kanban board với các tính năng nổi bật:
 
