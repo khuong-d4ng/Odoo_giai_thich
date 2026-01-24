@@ -761,6 +761,6 @@ erDiagram
 
 ---
 
-[!IMPORTANT]
+> [!IMPORTANT]
 > **Vậy là lần cuối đi bên nhau...**  
 > Cay đắng nhưng không đau
