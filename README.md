@@ -234,7 +234,7 @@ Dashboard cung cấp các view phân tích:
 
 #### 2.4.2. Dashboard Đơn Hàng
 
-<img src="images/dashboard-don-hang.png" alt="dashboard-don-hang" width="200"/>
+<img src="images/dashboard-don-hang.png" alt="dashboard-don-hang" width="800"/>
 
 Dashboard sử dụng Kanban board với các tính năng:
 
