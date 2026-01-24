@@ -3,7 +3,6 @@
 > **tiêu đề:** giải thích
 
 ---
-
 ## Mục Lục
 
 1. [Tổng Quan Hệ Thống](#1-tổng-quan-hệ-thống)
@@ -37,8 +36,38 @@ Hệ thống bao gồm hai module Odoo 15 tùy chỉnh hoạt động phối h�
 | `quan_ly_khach_hang` | Quản lý thông tin khách hàng và đơn hàng | `base` |
 | `van_ban` | Quản lý văn bản đến/đi, hồ sơ công việc | `base`, `quan_ly_khach_hang` |
 
-> [!NOTE]
+> [!IMPORTANT]
 > Module `van_ban` phụ thuộc vào `quan_ly_khach_hang`, nghĩa là `quan_ly_khach_hang` phải được cài đặt trước khi cài đặt `van_ban`.
+
+### 1.1. Tóm Tắt Chức Năng Module
+
+#### Module `quan_ly_khach_hang`
+
+Module cung cấp giải pháp quản lý khách hàng và đơn hàng toàn diện:
+
+| Chức Năng | Mô Tả |
+|-----------|-------|
+| **Quản lý thông tin khách hàng** | Lưu trữ thông tin cá nhân/doanh nghiệp, phân loại khách hàng mới/cũ |
+| **Tự động sinh mã khách hàng** | Tạo mã từ tên và tên doanh nghiệp, hỗ trợ nhập tay |
+| **Quản lý đơn hàng** | Theo dõi vòng đời đơn hàng: Mới → Đã giao / Đã hủy |
+| **Thống kê tự động** | Computed fields tính tổng đơn theo trạng thái, tổng giao dịch |
+| **Dashboard khách hàng** | Biểu đồ (Graph) và bảng phân tích (Pivot) thống kê khách hàng |
+| **Dashboard đơn hàng** | Kanban board theo dõi đơn hàng theo trạng thái, hỗ trợ kéo thả |
+| **Bộ lọc nâng cao** | Tìm kiếm theo loại khách hàng, trạng thái; nhóm theo tiêu chí |
+
+#### Module `van_ban`
+
+Module quản lý văn bản hành chính và công việc:
+
+| Chức Năng | Mô Tả |
+|-----------|-------|
+| **Văn bản đến** | Tiếp nhận, phân loại (nội bộ/khách hàng), theo dõi xử lý |
+| **Văn bản đi** | Soạn thảo, phê duyệt, gửi đi theo quy trình |
+| **Hồ sơ văn bản** | Lưu trữ, phân loại văn bản theo hồ sơ |
+| **Hồ sơ công việc** | Giao việc, theo dõi tiến độ, đánh giá kết quả |
+| **Dashboard văn bản** | Kanban board theo dõi văn bản theo trạng thái, hiển thị độ khẩn |
+| **Liên kết khách hàng** | Gắn văn bản với khách hàng, thống kê văn bản theo khách |
+| **Hệ thống danh mục** | Quản lý đơn vị, chức vụ, loại văn bản, độ mật, độ khẩn |
 
 ---
 
@@ -183,26 +212,58 @@ ten_khach_hang = fields.Char(
 )
 ```
 
+> [!TIP]
+> **Related fields** với `store=True` tạo bản copy dữ liệu trong database, cho phép tìm kiếm và sắp xếp nhanh hơn. Dữ liệu được tự động đồng bộ khi record gốc thay đổi.
+
 ---
 
 ### 2.4. Giao Diện Người Dùng
 
-#### 2.4.1. View Danh Sách Khách Hàng (Tree View)
+#### 2.4.1. Dashboard Khách Hàng
 
-Hiển thị các cột:
-- Mã khách hàng
-- Tên khách hàng
-- Tên doanh nghiệp
-- Email
-- Loại khách hàng
-- Trạng thái khách hàng
-- Tổng đơn chờ xử lý / đã giao / đã hủy
-- Tổng giao dịch
+Dashboard cung cấp các view phân tích:
 
-#### 2.4.2. View Form Khách Hàng
+| View | Mô Tả |
+|------|-------|
+| **Graph View** | Biểu đồ cột thống kê tổng giao dịch và số đơn đã giao theo khách hàng |
+| **Pivot View** | Bảng phân tích đa chiều: loại khách hàng (hàng), trạng thái (cột), các chỉ số (tổng giao dịch, số đơn) |
 
-Bố cục form:
+**Menu truy cập:** Quản lý khách hàng → Dashboard khách hàng
 
+#### 2.4.2. Dashboard Đơn Hàng
+
+Dashboard sử dụng Kanban board với các tính năng:
+
+- **Nhóm theo trạng thái:** Các cột Mới, Đã giao, Đã hủy
+- **Kanban Card:** Hiển thị tên đơn, đơn giá, tên khách hàng, ngày tạo, hạn bàn giao
+- **Kéo thả:** Di chuyển đơn hàng giữa các trạng thái
+
+**Menu truy cập:** Quản lý khách hàng → Dashboard đơn hàng
+
+#### 2.4.3. Search View với Bộ Lọc
+
+**Khách hàng:**
+| Filter | Domain |
+|--------|--------|
+| Khách mới | `[('trang_thai_khach_hang', '=', 'moi')]` |
+| Khách cũ | `[('trang_thai_khach_hang', '=', 'cu')]` |
+| Cá nhân | `[('loai_khach_hang', '=', 'ca_nhan')]` |
+| Doanh nghiệp | `[('loai_khach_hang', '=', 'doanh_nghiep')]` |
+
+**Đơn hàng:**
+| Filter | Domain |
+|--------|--------|
+| Mới | `[('trang_thai', '=', 'moi_cho_xu_ly')]` |
+| Đã giao | `[('trang_thai', '=', 'da_giao')]` |
+| Đã hủy | `[('trang_thai', '=', 'da_huy')]` |
+
+**Group By:** Trạng thái, Khách hàng, Ngày tạo
+
+#### 2.4.4. View Danh Sách & Form
+
+**Tree View Khách Hàng** hiển thị: Mã, Tên, Doanh nghiệp, Email, Loại, Trạng thái, Thống kê đơn hàng
+
+**Form View Khách Hàng:**
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │ THÔNG TIN CHUNG                                             │
@@ -482,7 +543,26 @@ Module `van_ban` định nghĩa 5 model danh mục hỗ trợ trong file [danh_m
 
 ### 3.7. Giao Diện Người Dùng
 
-#### 3.7.1. View Form Văn Bản Đến
+#### 3.7.1. Dashboard Văn Bản Đến
+
+Dashboard sử dụng Kanban board với các tính năng nổi bật:
+
+| Tính Năng | Mô Tả |
+|-----------|-------|
+| **Nhóm theo trạng thái** | Các cột: Mới, Đang xử lý, Đã xử lý |
+| **Badge độ khẩn** | Hiển thị badge màu vàng (Khẩn), đỏ (Hỏa tốc) |
+| **Thông tin khách hàng** | Hiển thị tên khách hàng nếu văn bản từ khách hàng |
+| **Kanban Card** | Số văn bản, trích yếu, ngày đến |
+
+**Menu truy cập:** Quản lý văn bản → Dashboard
+
+```xml
+<!-- Kanban template với badge độ khẩn -->
+<span t-if="record.do_khan.raw_value == 'khan'" class="badge badge-warning">Khẩn</span>
+<span t-if="record.do_khan.raw_value == 'hoa_toc'" class="badge badge-danger">Hỏa tốc</span>
+```
+
+#### 3.7.2. View Form Văn Bản Đến
 
 View form có logic điều kiện hiển thị:
 
@@ -495,20 +575,21 @@ View form có logic điều kiện hiển thị:
        }"/>
 ```
 
-> [!NOTE]
+> [!TIP]
 > Field `khach_hang_id` chỉ hiển thị và bắt buộc khi `phan_loai` = `'khach_hang'`. Đây là cách Odoo xử lý UI động dựa trên giá trị field.
 
-#### 3.7.2. Search View với Filters
+#### 3.7.3. Search View với Filters
 
-Văn bản đến có search view với các bộ lọc:
-
+**Văn bản đến:**
 | Filter | Domain |
 |--------|--------|
 | Mới | `[('trang_thai', '=', 'moi')]` |
 | Đang xử lý | `[('trang_thai', '=', 'dang_xu_ly')]` |
 | Đã xử lý | `[('trang_thai', '=', 'da_xu_ly')]` |
+| Nội bộ | `[('phan_loai', '=', 'noi_bo')]` |
+| Khách hàng | `[('phan_loai', '=', 'khach_hang')]` |
 
-**Group By Options:** Loại văn bản, Trạng thái, Độ khẩn
+**Group By:** Trạng thái, Loại văn bản, Độ khẩn, Phân loại
 
 ---
 
@@ -595,7 +676,7 @@ class KhachHangVanBan(models.Model):
     # ... các computed fields khác
 ```
 
-> [!NOTE]
+> [!IMPORTANT]
 > **Cách hoạt động của `_inherit`:**
 > - Không tạo model mới, mà thêm fields/methods vào model gốc
 > - Model `quan_ly_khach_hang.khach_hang` sau khi cài `van_ban` sẽ có thêm các fields từ `KhachHangVanBan`
@@ -760,7 +841,6 @@ erDiagram
 | `van_ban_lien_quan_ids` | HoSoCongViec | VanBanDen | Many2many | Văn bản liên quan công việc |
 
 ---
-
 > [!IMPORTANT]
 > **Vậy là lần cuối đi bên nhau...**  
 > Cay đắng nhưng không đau
