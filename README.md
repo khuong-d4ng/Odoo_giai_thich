@@ -762,5 +762,5 @@ erDiagram
 ---
 
 > [!NOTE]
-> **Lần cuối ta bên nhau.**  
+> **Vậy là lần cuối đi bên nhau...**  
 > Cay đắng nhưng không đau
