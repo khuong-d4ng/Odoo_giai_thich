@@ -37,7 +37,7 @@ Hệ thống bao gồm hai module Odoo 15 tùy chỉnh hoạt động phối h�
 | `quan_ly_khach_hang` | Quản lý thông tin khách hàng và đơn hàng | `base` |
 | `van_ban` | Quản lý văn bản đến/đi, hồ sơ công việc | `base`, `quan_ly_khach_hang` |
 
-> [!IMPORTANT]
+> [!NOTE]
 > Module `van_ban` phụ thuộc vào `quan_ly_khach_hang`, nghĩa là `quan_ly_khach_hang` phải được cài đặt trước khi cài đặt `van_ban`.
 
 ---
@@ -495,7 +495,7 @@ View form có logic điều kiện hiển thị:
        }"/>
 ```
 
-> [!TIP]
+> [!NOTE]
 > Field `khach_hang_id` chỉ hiển thị và bắt buộc khi `phan_loai` = `'khach_hang'`. Đây là cách Odoo xử lý UI động dựa trên giá trị field.
 
 #### 3.7.2. Search View với Filters
@@ -595,7 +595,7 @@ class KhachHangVanBan(models.Model):
     # ... các computed fields khác
 ```
 
-> [!IMPORTANT]
+> [!NOTE]
 > **Cách hoạt động của `_inherit`:**
 > - Không tạo model mới, mà thêm fields/methods vào model gốc
 > - Model `quan_ly_khach_hang.khach_hang` sau khi cài `van_ban` sẽ có thêm các fields từ `KhachHangVanBan`
@@ -761,6 +761,6 @@ erDiagram
 
 ---
 
-> [!NOTE]
+[!IMPORTANT]
 > **Vậy là lần cuối đi bên nhau...**  
 > Cay đắng nhưng không đau
