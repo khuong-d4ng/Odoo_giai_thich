@@ -127,7 +127,7 @@ Việc sử dụng các công cụ độc lập, thiếu liên kết hoặc duy 
 
 ### 1.3.3. Ứng dụng công nghệ mới (Kéo thả trực quan, Tự động hóa gán lịch)
 
-Để giải quyết triệt để các nhược điểm trên, xu hướng công nghệ mới hướng tới việc xây dựng các nền tảng Web-based quản trị phân công thế hệ mới. Nền tảng này tích hợp trực tiếp cơ sở dữ liệu tập trung với hai công nghệ cốt lõi:
+Để giải quyết triệt để các nhược điểm trên, xu hướng công nghệ mới hướng tới việc xây dựng các nền tảng Web-based quản trị phân công thế hệ mới. Nền tảng này tích hợp trực tiếp cơ sở dữ liệu trung tâm với hai công nghệ cốt lõi:
 - **Công nghệ Kéo thả trực quan trên nền Web (HTML5 Drag & Drop API / React DnD-kit):** Mang lại trải nghiệm thao tác mượt mà, phản hồi tức thời ngay trên trình duyệt web mà không cần cài đặt phần mềm phức tạp dưới máy trạm.
 - **Giải thuật tự động thông minh Constraint Satisfaction Problem (CSP):** Được tối ưu hóa bằng các heuristics tìm kiếm tiên tiến (như chọn biến có ràng buộc lớn nhất - MRV, lan truyền ràng buộc - Constraint Propagation). Thuật toán được lập trình chạy trực tiếp ở phía Server dưới dạng các API dịch vụ, cho phép tính toán phương án phân công tối ưu chỉ trong vài tích tắc và tự động trả về cảnh báo chi tiết giúp con người dễ dàng ra quyết định.
 
@@ -137,73 +137,27 @@ Việc sử dụng các công cụ độc lập, thiếu liên kết hoặc duy 
 
 ### 1.4.1. Mô tả bài toán
 
-Bài toán lập kế hoạch giảng dạy và phân công giảng viên cho Khoa Công nghệ Thông tin – Trường Đại học Đại Nam được phát biểu như sau:
+Bài toán lập kế hoạch giảng dạy và phân công giảng viên cho Khoa Công nghệ Thông tin – Trường Đại học Đại Nam là một bài toán tổ hợp có độ phức tạp rất lớn, ảnh hưởng trực tiếp đến chất lượng giảng dạy của đội ngũ giảng viên và tiến độ học tập của sinh viên. Bản chất cốt lõi của bài toán này là việc tìm kiếm một phương án bố trí, sắp đặt tối ưu nhất để kết nối giữa lực lượng giảng viên hiện có với danh sách các lớp học phần cần mở trong học kỳ, dựa trên khung chương trình đào tạo của từng chuyên ngành. Để giải quyết bài toán một cách thấu đáo, hệ thống cần tiếp nhận một lượng thông tin đầu vào vô cùng đa dạng và phân mảnh. Trước hết là thông tin về các môn học với số lượng tín chỉ lý thuyết và thực hành khác nhau, danh sách các lớp sinh viên theo từng khóa học cụ thể. Song song với đó là cơ sở dữ liệu về đội ngũ giảng viên, phân định rõ ràng giữa lực lượng giảng viên cơ hữu chịu ràng buộc định mức giờ dạy tiêu chuẩn và giảng viên thỉnh giảng từ các doanh nghiệp vốn có quỹ thời gian linh hoạt nhưng lại hạn chế về các ca học bận. Đặc biệt, thông tin nguyện vọng đăng ký trực tuyến của giảng viên bao gồm các môn giảng dạy thế mạnh, vai trò mong muốn đảm nhận giảng dạy lý thuyết hay hướng dẫn thực hành phòng máy và lịch bận cá nhân đóng vai trò là dữ liệu định hướng quan trọng nhất để hệ thống tìm kiếm phương án gán lịch phù hợp.
 
-*   **Dữ liệu đầu vào (Inputs):**
-    - Danh sách môn học $S$: Mỗi môn học $s \in S$ có mã môn, tên môn, số tiết lý thuyết $th$, số tiết thực hành $ph$.
-    - Danh sách giảng viên $L$: Mỗi giảng viên $l \in L$ thuộc loại cơ hữu hoặc thỉnh giảng, có định mức giờ chuẩn trong kỳ, chức vụ, và danh sách các slot bận cố định trong tuần.
-    - Danh sách lớp học $C$: Mỗi lớp $c \in C$ thuộc chuyên ngành (ví dụ: Công nghệ phần mềm, Hệ thống thông tin) và khóa đào tạo cụ thể.
-    - Chương trình đào tạo chuyên ngành $P$ và Khung chương trình $Curriculum$: Định nghĩa danh sách các môn học $s$ bắt buộc phải giảng dạy cho từng lớp $c$ trong học kỳ hiện tại.
-    - Danh sách nguyện vọng đăng ký $R$: Chứa thông tin đăng ký của giảng viên $l$ đối với môn học $s$, phân rõ vai trò dạy lý thuyết (Main) và thực hành (Practice).
-*   **Mục tiêu (Outputs):**
-    Xây dựng một phiên bản xếp lịch biểu hoàn chỉnh bao gồm danh sách các dòng thời khóa biểu $T$. Mỗi dòng $t \in T$ tương ứng với một lớp $c$, một môn học $s$ cần được xác định:
-    1.  Buổi dạy cố định (Sáng hoặc Chiều).
-    2.  Thứ dạy trong tuần (Thứ 2 đến Thứ 7).
-    3.  Giảng viên dạy lý thuyết chính $l_{main} \in L$.
-    4.  Giảng viên hướng dẫn thực hành $l_{prac} \in L$ (nếu môn học có cấu phần thực hành phòng máy).
-    5.  Loại phòng học yêu cầu (Phòng thường hoặc Phòng máy).
-    
-    Phương án phân công cuối cùng phải đảm bảo thỏa mãn **100% tất cả các ràng buộc cứng** (không chéo lịch GV, không chéo lịch lớp học, đúng năng lực môn học đăng ký) và **tối ưu hóa tối đa các ràng buộc mềm** (đạt định mức tiết chuẩn của GV cơ hữu, không vượt trần 250 tiết, không gây mệt mỏi bài giảng).
+Mục tiêu cuối cùng của bài toán là sinh ra một bảng phân công thời khóa biểu hoàn chỉnh, nơi mà mỗi lớp học phần của một môn học cụ thể được xác định rõ ca học sáng hoặc chiều, thứ dạy trong tuần, loại phòng học tương thích là phòng học lý thuyết thông thường hay phòng máy thực hành chuyên dụng, và quan trọng nhất là danh tính của giảng viên giảng dạy lý thuyết cùng giảng viên hướng dẫn thực hành phòng máy. Một phương án phân công được coi là khả thi và tối ưu khi nó giải quyết triệt để hai nhóm điều kiện: các ràng buộc cứng bắt buộc phải thỏa mãn tuyệt đối nhằm đảm bảo tính hợp lệ cơ bản của thời khóa biểu như không được chéo lịch giảng viên, không được chéo lịch lớp học, và các ràng buộc mềm mang tính khuyến khích để tối ưu hóa trải nghiệm giảng dạy cũng như tuân thủ tốt nhất quy chế đào tạo của nhà trường như đạt định mức giờ dạy của giảng viên cơ hữu và không gây mệt mỏi bài giảng do dạy quá nhiều lớp cùng một môn học.
 
 ---
 
 ### 1.4.2. Yêu cầu chức năng
 
-Hệ thống lập kế hoạch và giảng dạy cần đáp ứng đầy đủ các phân hệ chức năng nghiệp vụ sau:
+Hệ thống được thiết kế hướng tới việc xây dựng một nền tảng quản trị phân công toàn diện, thân thiện và dễ sử dụng cho mọi đối tượng tham gia vào quy trình đào tạo của Khoa. Điểm khởi đầu của hệ thống là khả năng đồng bộ và quản trị dữ liệu gốc một cách nhanh chóng và chính xác. Cán bộ quản lý có thể dễ dàng khởi tạo, chỉnh sửa hoặc loại bỏ thông tin của giảng viên, môn học, lớp học cố định và khung chương trình đào tạo của từng chuyên ngành. Để tiết kiệm thời gian và giảm thiểu thao tác nhập liệu thủ công tẻ nhạt, hệ thống hỗ trợ chức năng nạp dữ liệu hàng loạt từ các file bảng tính Excel sẵn có của trường. Khi thông tin giảng viên mới được thêm vào hệ thống, một tài khoản đăng nhập cá nhân sẽ được tự động kích hoạt, đồng thời phân quyền tương ứng với vai trò của họ để đảm bảo tính an toàn và bảo mật thông tin.
 
-*   **Phân hệ Xác thực và Phân quyền (Authentication & Authorization):**
-    - Hỗ trợ đăng nhập hệ thống an toàn bằng tài khoản và mật khẩu được mã hóa.
-    - Phân quyền người dùng chặt chẽ thành 3 nhóm quyền cốt lõi:
-      - *Admin (Quản trị hệ thống):* Cấp phát, quản lý tài khoản người dùng, cấu hình tham số hệ thống.
-      - *Cán bộ xếp lịch (Scheduler):* Giáo vụ khoa, có quyền CRUD dữ liệu danh mục môn học, giảng viên, lớp học, chương trình đào tạo; mở đợt nguyện vọng; quản lý và tạo các phiên xếp lịch TKB; chạy thuật toán CSP tự động; kéo thả giảng viên và xuất file Excel.
-      - *Giảng viên (Lecturer):* Truy cập Lecturer Portal, đăng ký nguyện vọng giảng dạy các môn học trong đợt đang mở, đăng ký thông tin lịch bận.
-*   **Phân hệ Quản lý dữ liệu gốc (Master Data Management):**
-    - Quản lý danh mục Giảng viên: Thêm, sửa, xóa hồ sơ giảng viên, cập nhật thông tin chức vụ và loại hình giảng dạy. Tích hợp tính năng tự động tạo tài khoản hệ thống khi thêm mới giảng viên.
-    - Quản lý danh mục Môn học: Cấu hình thông tin môn học, số tín chỉ lý thuyết/thực hành, số tiết quy đổi tương ứng, và cấu hình danh sách môn học tương đương nhau.
-    - Quản lý danh mục Lớp học cố định: Khởi tạo lớp học học phần, liên kết lớp học với Khung chương trình đào tạo chuyên ngành tương ứng.
-    - Quản lý Khung chương trình đào tạo: Thiết lập cấu trúc môn học phân bổ theo từng học kỳ của từng ngành và khóa học.
-    - Hỗ trợ tính năng **Import dữ liệu hàng loạt từ file Excel** cho các danh mục Giảng viên, Môn học, Khung chương trình đào tạo nhằm đẩy nhanh tốc độ triển khai dữ liệu ban đầu.
-*   **Phân hệ Quản lý Đợt nguyện vọng trực tuyến:**
-    - Cho phép cán bộ xếp lịch tạo mới đợt nguyện vọng gắn liền với học kỳ, chọn danh sách môn học cần thu thập nguyện vọng.
-    - Đóng/Mở đợt đăng ký nguyện vọng linh hoạt chỉ bằng một thao tác gạt nút.
-*   **Cổng đăng ký Nguyện vọng dành cho Giảng viên (Lecturer Portal):**
-    - Giao diện trực quan hiển thị danh sách các đợt nguyện vọng đang mở dưới dạng Card thông tin.
-    - Bảng đăng ký môn học thiết kế thông minh, cho phép giảng viên đăng ký nhanh vai trò dạy lý thuyết hoặc thực hành, cập nhật lịch bận cá nhân trực tuyến.
-*   **Không gian làm việc Xếp lịch TKB (Timetable Workspace):**
-    - Giao diện **Draft Wizard Modal** thông minh: Hỗ trợ cán bộ tạo phiên xếp lịch mới bằng 2 phương pháp: nạp môn theo Khung chương trình đào tạo và kỳ học đã chọn từ trước, hoặc tự chọn môn học/lớp học thủ công.
-    - **Bảng Workspace TKB tương tác:** Hiển thị trực quan toàn bộ danh sách lớp - môn cần phân công, hỗ trợ sửa đổi trực tiếp (inline edit) buổi cố định, loại phòng.
-    - **Bể giảng viên (Lecturer Pool) kéo thả:** Bảng bên phải hiển thị danh sách giảng viên khả dụng tương thích với dòng môn học đang chọn. Hiển thị thanh tiến độ giờ giảng thực tế của từng giảng viên. Hỗ trợ thao tác kéo thả giảng viên vào cột GV chính / GV thực hành cực kỳ mượt mà.
-    - **Hệ thống phát hiện và cảnh báo xung đột tức thời:** Hiển thị cảnh báo trực quan bằng màu sắc và tooltip chi tiết ngay trên dòng TKB bị vi phạm ràng buộc (trùng lịch buổi dạy, vượt quá số tiết quy định).
-    - **Động cơ Phân công tự động (Auto-Assignment Engine):** Tích hợp nút kích hoạt thuật toán xếp lịch tự động dựa trên CSP phía Backend, hỗ trợ tùy chọn chiến lược phân công "Bão hòa" (Saturation) hoặc "Cân bằng tải" (Load Balancing).
-    - **Xuất Excel bảng phân công:** Cho phép cán bộ xuất file Excel bảng thời khóa biểu và phân công hoàn chỉnh chuẩn định dạng mẫu biểu của nhà trường.
+Sau khi chuẩn bị đầy đủ dữ liệu gốc cho học kỳ mới, cán bộ xếp lịch có thể thiết lập và công bố các đợt thu thập nguyện vọng giảng dạy trực tuyến. Việc đóng hoặc mở cổng đăng ký được thực hiện vô cùng linh hoạt và dễ dàng thông qua giao diện điều khiển trung tâm. Về phía các giảng viên, khi đăng nhập vào cổng thông tin cá nhân dành riêng cho mình, họ sẽ được tiếp cận một giao diện đăng ký trực quan và khoa học. Giảng viên có thể xem danh sách các môn học được mở trong kỳ học hiện tại, chủ động lựa chọn đăng ký giảng dạy những môn học phù hợp với năng lực chuyên môn, đồng thời xác định rõ vai trò mong muốn là dạy lý thuyết chính hay hướng dẫn thực hành phòng máy. Hơn nữa, giảng viên có thể cập nhật trực tiếp thời gian biểu cá nhân để thông báo cho giáo vụ biết những buổi bận cố định trong tuần, giúp hệ thống tự động loại trừ và tránh xếp lịch vào các ca học đó, tạo sự chủ động tối đa cho giảng viên trong công tác sắp xếp công việc riêng.
+
+Trọng tâm và là tính năng đột phá nhất của hệ thống nằm ở không gian làm việc xếp lịch thời khóa biểu tương tác. Tại phân hệ này, cán bộ giáo vụ khoa được cung cấp một trình thuật sĩ thông minh hỗ trợ tạo nhanh các phiên xếp lịch nháp dựa trên việc lựa chọn khung chương trình đào tạo và kỳ học cụ thể, hệ thống sẽ tự động đối chiếu cơ sở dữ liệu để kéo ra tất cả các cặp lớp môn cần phân công mà không sợ bỏ sót bất kỳ môn học bắt buộc nào. Giao diện Workspace được thiết kế hiện đại, chia tách rõ ràng giữa danh sách lớp môn cần xếp lịch và bể chứa thẻ thông tin của giảng viên khả dụng ở bảng bên phải. Cán bộ quản lý có thể phân công giảng dạy bằng cách chạy động cơ xếp lịch tự động dựa trên thuật toán thông minh phía Backend. Thuật toán này có khả năng tự động phân tích hàng ngàn tổ hợp điều kiện để điền đầy phần lớn thời khóa biểu chỉ trong vài tích tắc, hỗ trợ cả hai chiến lược phân bổ là tập trung tối đa cho giảng viên hoặc phân chia đều đặn nhằm đảm bảo tính công bằng. Sau khi máy tính đưa ra bộ khung lịch biểu cơ bản, cán bộ có thể sử dụng thao tác kéo thả vô cùng mượt mà để di chuyển các thẻ giảng viên vào ô phân công, thực hiện tinh chỉnh các trường hợp đặc biệt ngoài thực tế. Trong suốt quá trình tương tác kéo thả này, hệ thống liên tục thực hiện rà soát thông tin để phát hiện các lỗi xung đột lịch biểu và hiển thị cảnh báo trực quan bằng màu sắc nổi bật ngay tại dòng thời khóa biểu bị lỗi, giúp cán bộ giáo vụ nhận diện và xử lý xung đột ngay lập tức trước khi xuất bản bản phân công chính thức ra file Excel chuẩn hóa gửi nhà trường.
 
 ---
 
 ### 1.4.3. Yêu cầu phi chức năng
 
-Để đảm bảo hệ thống vận hành trơn tru và mang lại trải nghiệm chuyên nghiệp nhất cho người dùng, hệ thống phải đáp ứng các tiêu chuẩn phi chức năng sau:
+Bên cạnh các phân hệ chức năng nghiệp vụ, hệ thống lập kế hoạch giảng dạy cũng cần phải đáp ứng các tiêu chuẩn khắt khe về mặt phi chức năng để bảo đảm sự ổn định và tin cậy trong suốt quá trình vận hành thực tế. Trước hết là yêu cầu về hiệu năng xử lý và tốc độ phản hồi của hệ thống. Các tác vụ thông thường như truy vấn, cập nhật danh mục hay đăng ký nguyện vọng phải được thực hiện gần như tức thời để mang lại cảm giác mượt mà cho người dùng. Đặc biệt, thuật toán tự động phân công giảng dạy vốn xử lý một khối lượng tính toán tổ hợp cực kỳ lớn phải được tối ưu hóa để hoàn thành nhiệm vụ chỉ trong vòng vài giây, tránh gây ra tình trạng nghẽn mạng hay treo trình duyệt web của cán bộ xếp lịch. Đồng thời, hệ thống phải được thiết kế có cấu trúc linh hoạt để dễ dàng mở rộng quy mô phần cứng và phần mềm, đảm bảo khả năng đáp ứng tốt khi số lượng lớp học phần hoặc số lượng giảng viên thỉnh giảng tăng cao trong các kỳ học cao điểm của nhà trường.
 
-*   **Hiệu năng xử lý (Performance):**
-    - Thời gian phản hồi của các API truy vấn danh mục thông thường phải dưới 500ms.
-    - Thuật toán tự động phân công giảng dạy (CSP) phải xử lý tối ưu trên cơ sở dữ liệu lớn (quy mô hàng trăm dòng TKB) với thời gian hoàn thành dưới 3 giây, đảm bảo không gây treo trình duyệt của người dùng.
-    - Hệ thống hỗ trợ xử lý đồng thời nhiều giảng viên truy cập nộp nguyện vọng giảng dạy trong cùng một thời điểm mà không xảy ra hiện tượng nghẽn mạng hay mất mát dữ liệu.
-*   **Tính an toàn và Bảo mật (Security):**
-    - Toàn bộ dữ liệu mật khẩu tài khoản người dùng phải được mã hóa một chiều bằng giải thuật băm **bcrypt** mạnh mẽ phía Backend trước khi lưu trữ vào Cơ sở dữ liệu, đảm bảo không bị lộ thông tin ngay cả khi database bị tấn công.
-    - Triển khai xác thực và ủy quyền dựa trên cơ chế mã hóa **JSON Web Token (JWT)**. Token được đính kèm an toàn vào Header của mỗi request từ Frontend và được Backend giải mã, kiểm tra quyền hạn (Role-based Access Control) chặt chẽ ở cấp độ từng API endpoint.
-*   **Trải nghiệm người dùng và Thiết kế giao diện (UI/UX):**
-    - Giao diện được thiết kế hiện đại, chuyên nghiệp theo phong cách tối giản, sử dụng các tông màu hài hòa (Tailored HSL Color Palettes), tận dụng hiệu ứng Glassmorphism và các micro-animations tinh tế giúp giao diện sống động và cao cấp.
-    - Phông chữ hệ thống rõ ràng, dễ đọc, sử dụng các kiểu typography hiện đại (như Inter hoặc Outfit) bám sát các tiêu chuẩn thiết kế web chuyên nghiệp.
-    - Khả năng tương thích tốt trên các trình duyệt web phổ biến hiện nay (Google Chrome, Microsoft Edge, Safari, Firefox). Giao diện thiết kế đáp ứng (Responsive) tốt trên môi trường máy tính để bàn (Desktop) và máy tính bảng phục vụ cho tác vụ quản lý nghiệp vụ phức tạp.
+Tính an toàn và bảo mật dữ liệu cũng là một yếu tố sống còn đối với một hệ thống quản lý thông tin nhà trường. Toàn bộ thông tin nhạy cảm của người dùng như mật khẩu tài khoản phải được mã hóa bảo mật phía Backend bằng các thuật toán băm một chiều hiện đại trước khi lưu trữ vào cơ sở dữ liệu. Hệ thống triển khai cơ chế xác thực và phân quyền nghiêm ngặt dựa trên mã thông báo JSON Web Token được đính kèm an toàn trong mỗi yêu cầu từ Frontend, giúp kiểm soát chặt chẽ quyền truy cập và đảm bảo giảng viên hay cán bộ quản lý chỉ có thể thao tác đúng phạm vi chức năng được cấp phép. Ngoài ra, giao diện của hệ thống được đầu tư thiết kế tỉ mỉ, tuân thủ các quy chuẩn mỹ thuật web hiện đại. Việc sử dụng các tông màu hài hòa, bố cục trực quan rõ ràng cùng phông chữ hệ thống hiện đại, dễ đọc giúp giảm bớt căng thẳng và mệt mỏi cho cán bộ giáo vụ trong những ngày làm việc cường độ cao. Giao diện cũng được tối ưu hóa để hiển thị tốt trên các trình duyệt phổ biến hiện nay, đảm bảo trải nghiệm đồng nhất và chuyên nghiệp nhất cho người sử dụng.
 
 ---
 
